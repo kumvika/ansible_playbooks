@@ -1,0 +1,36 @@
+---
+
+- name: create var log prometheus directory
+  file:
+    path: /var/log/prometheus
+    state: directory
+
+- name: create opt prometheus directory
+  file:
+    path: /opt/prometheus
+    state: directory
+
+- name: Download and install aerospike exporter
+  unarchive:
+    remote_src: yes
+    src: '{{ repo_url }}/asprom_{{ aerospike_exporter_version }}_linux_amd64.tar.gz'
+    dest: /opt/prometheus/
+
+
+- name: Install Aerospike exporter init file
+  template:
+    src: asprom.j2
+    dest: /etc/init.d/asprom
+    mode: 0755
+
+- name: Creating the log rotation for the Aerospike exporter logs
+  copy:
+    src: files/aerospike_logrotate
+    dest: /etc/logrotate.d/prom_exporters
+    mode: 0755
+
+- name: start asprom (aerospike_exporter)
+  service:
+    name: asprom
+    state: restarted
+  become_user: root

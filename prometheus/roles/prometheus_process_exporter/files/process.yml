@@ -1,0 +1,31 @@
+process_names:
+  - name: Kafka
+    cmdline:
+      - '.*kafka.Kafka.*'
+  - name: Amix Process
+    cmdline:
+      - '.*amix.*'
+  - name: Asterisk
+    cmdline:
+      - '/usr/sbin/asterisk.*'
+  - name: Eventshipper
+    cmdline:
+      - '.*eventshipper.*'
+  - name: Adhearsion Ahn Process
+    cmdline:
+      - '.*java.*adhearsion/sillyio.*'
+  - name: Homeopathix
+    cmdline:
+      - '.*homeopathix'
+  - name: MySQLd Process
+    cmdline:
+      - '/usr/sbin/mysqld.*'
+  - name: Recogenix TS
+    cmdline:
+      - '.*recogenix-ts.*'
+  - name: Rsyslog
+    cmdline:
+      - '/sbin/rsyslogd.*'
+  - name: Mongos
+    cmdline:
+      - 'mongos.*'

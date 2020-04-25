@@ -1,0 +1,42 @@
+---
+
+- name: create opt directory for prometheus 
+  file: 
+    path: /opt/prometheus 
+    state: directory
+
+- name: create /var/log/prometheus directory
+  file:
+    path: /var/log/prometheus
+    state: directory
+
+- name: unarchive process exporter
+  unarchive:
+    remote_src: yes
+    src: '{{ repo_url }}/process-exporter-{{ process_exporter_version }}.linux-amd64.tar.gz'
+    dest: /opt/prometheus
+
+- name: Install process exporter init file
+  template:
+    src: process_exporter.j2
+    dest: /etc/init.d/process-exporter
+    mode: 0755
+
+- name: Copy the process yml config files to the opt prometheus process exporter directory
+  copy:
+    src: files/process.yml
+    dest: /opt/prometheus/process-exporter-{{ process_exporter_version }}.linux-amd64
+    mode: 0755
+
+- name: Creating the log rotation for the process exporter logs
+  copy:
+    src: files/process_exporter_logrotate
+    dest: /etc/logrotate.d/prom_exporters
+    mode: 0755
+
+- name: start process-exporter
+  service:
+    name: process-exporter
+    state: restarted
+  become_user: root
+

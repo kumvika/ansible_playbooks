@@ -1,0 +1,62 @@
+---
+
+- name: Check if instance is Amazon Linux1 or Amazon Linux2
+  shell: cat /etc/*release* | grep 'VERSION="2"' | wc -l
+  register: amazon_linux_type
+# amazon_linux_type 0 means Machine is Amazon Linux1, 1 means Amazon Linux2.
+  
+- name: create opt directory for prometheus
+  file:
+    path: /opt/prometheus
+    state: directory
+
+- name: create var log prometheus directory
+  file:
+    path: /var/log/prometheus
+    state: directory
+  when: amazon_linux_type.stdout == "0"
+
+- name: Download and install mysqld exporter
+  unarchive:
+    remote_src: yes
+    src: '{{ repo_url }}/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64.tar.gz'
+    dest: /opt/prometheus/
+
+- name: Copy the MySqld exporter config file
+  copy:
+    src: mysqld_exporter.cnf
+    dest: /opt/prometheus/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64/mysqld_exporter.cnf
+    mode: 0755
+
+- name: Print the value of the Amazon Linux Version
+  debug:
+    msg: '{{ amazon_linux_type }}'
+
+# If the machine is Amazon Linux1, we will use init file to manage the service
+- name: Install MySqld exporter init file
+  template:
+    src: mysqld_exporter_initd.j2
+    dest: /etc/init.d/mysqld_exporter
+    mode: 0755
+  when: amazon_linux_type.stdout == "0"
+
+# If the machine is Amazon Linux2, we will use sysmtemd file to manage the service
+- name: Install MySqld exporter systemd file
+  template:
+    src: mysqld_exporter_systemd.j2
+    dest: /etc/systemd/system/mysqld_exporter.service
+    mode: 0755
+  when: amazon_linux_type.stdout == "1"
+
+- name: Creating the log rotation for the MySqld exporter logs
+  copy:
+    src: mysqld_logrotate.conf
+    dest: /etc/logrotate.d/prom_exporters.conf
+    mode: 0755
+  when: amazon_linux_type.stdout == "0"
+
+- name: start mysqld_exporter
+  service:
+    name: mysqld_exporter
+    state: restarted
+  become_user: root

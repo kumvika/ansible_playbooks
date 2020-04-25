@@ -1,0 +1,5 @@
+---
+
+# Aerospike exporter version
+repo_url: 'https://github.com/alicebob/asprom/releases/tag/'
+aerospike_exporter_version: '1.6.1'

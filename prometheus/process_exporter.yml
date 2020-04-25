@@ -1,0 +1,10 @@
+---
+
+ - name: Include all hosts
+   hosts: all
+   become: yes
+   become_method: sudo
+   user: '{{ user }}'
+   gather_facts: no
+   roles:
+    - prometheus_process_exporter

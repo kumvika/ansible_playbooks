@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/prometheus
+#
+# mysqld exporter monitoring server
+#
+#  description: initd script for mysqld exporter
+
+#  processname: mysqld exporter
+#  Author: Vikash
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+PROGNAME=mysqld_exporter
+PROG=/opt/prometheus/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64/$PROGNAME
+USER=root
+LOGFILE=/var/log/prometheus/$PROGNAME.log
+LOCKFILE=/var/run/$PROGNAME.pid
+ARG_CONFIG_FILE="--config.my-cnf=/opt/prometheus/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64/mysqld_exporter.cnf"
+start() {
+    echo -n "Starting $PROGNAME: "
+    cd /usr/local/bin/
+    daemon --user $USER --pidfile="$LOCKFILE" "$PROG $ARG_CONFIG_FILE  &>$LOGFILE &"
+    echo $(pidofproc $PROGNAME) >$LOCKFILE
+    echo
+}
+
+stop() {
+    echo -n "Shutting down $PROGNAME: "
+    killproc $PROGNAME &>> $LOGFILE
+    rm -f $LOCKFILE
+    echo
+}
+
+case "$1" in
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    status)
+    status $PROGNAME
+    ;;
+    restart)
+    stop
+    start
+    ;;
+    reload)
+    echo "Sending SIGHUP to $PROGNAME"
+    kill -SIGHUP $(pidofproc $PROGNAME)
+    ;;
+    *)
+        echo "Usage: service mysqld_exporter {start|stop|status|reload|restart}"
+        exit 1
+    ;;
+esac

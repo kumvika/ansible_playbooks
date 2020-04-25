@@ -1,0 +1,6 @@
+---
+
+# Package details MySqld Exporter
+
+repo_url: 'https://github.com/prometheus/mysqld_exporter/releases/download/v'
+mysqld_exporter_version: '0.12.1'

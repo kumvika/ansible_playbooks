@@ -1,0 +1,5 @@
+---
+
+# Package details Process Exporter
+process_exporter_version: '0.5.0'
+repo_url: 'https://github.com/ncabatoff/process-exporter/releases/download/v' 

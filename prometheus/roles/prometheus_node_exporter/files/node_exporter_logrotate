@@ -1,0 +1,8 @@
+/var/log/prometheus/*.log {
+        daily
+        copytruncate
+        rotate 7
+        compress
+        missingok
+	notifempty
+}

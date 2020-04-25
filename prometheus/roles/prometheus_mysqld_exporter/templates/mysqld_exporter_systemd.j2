@@ -1,0 +1,12 @@
+[Unit]
+Description=mysqld_exporter
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/opt/prometheus/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64/mysqld_exporter --config.my-cnf=/opt/prometheus/mysqld_exporter-{{ mysqld_exporter_version }}.linux-amd64/mysqld_exporter.cnf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

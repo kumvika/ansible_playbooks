@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/prometheus
+#
+#  description: Redis exporter init script 
+#  processname: redis exporter
+
+#  Author: Vikash
+#  Source function library.
+. /etc/rc.d/init.d/functions
+
+PROGNAME=redis_exporter
+PROG=/opt/prometheus/redis_exporter-v{{ redis_exporter_version }}.linux-amd64/$PROGNAME
+USER=root
+LOGFILE=/var/log/prometheus/$PROGNAME.log
+LOCKFILE=/var/run/$PROGNAME.pid
+
+start() {
+    echo -n "Starting $PROGNAME: "
+    cd /usr/local/bin/
+    daemon --user $USER --pidfile="$LOCKFILE" "$PROG &>$LOGFILE &"
+    echo $(pidofproc $PROGNAME) >$LOCKFILE
+    echo
+}
+
+stop() {
+    echo -n "Shutting down $PROGNAME: "
+    killproc $PROGNAME &>> $LOGFILE
+    rm -f $LOCKFILE
+    echo
+}
+
+
+case "$1" in
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    status)
+    status $PROGNAME
+    ;;
+    restart)
+    stop
+    start
+    ;;
+    reload)
+    echo "Sending SIGHUP to $PROGNAME"
+    kill -SIGHUP $(pidofproc $PROGNAME) 
+    ;;
+    *)
+        echo "Usage: service redis_exporter {start|stop|status|reload|restart}"
+        exit 1
+    ;;
+esac

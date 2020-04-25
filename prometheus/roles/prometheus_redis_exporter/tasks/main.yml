@@ -1,0 +1,36 @@
+---
+
+- name: create opt directory for prometheus 
+  file: 
+    path: /opt/prometheus 
+    state: directory
+
+- name: create var log prometheus directory
+  file:
+    path: /var/log/prometheus
+    state: directory
+
+- name: Dwnload and unarchive redis exporter from repo
+  unarchive:
+    remote_src: yes
+    src: '{{ repo_url }}/redis_exporter-v{{ redis_exporter_version }}.linux-amd64.tar.gz'
+    dest: /opt/prometheus
+
+- name: Install Redis exporter init file
+  template:
+    src: redis_exporter.j2
+    dest: /etc/init.d/redis_exporter
+    mode: 0755
+
+- name: Creating the log rotation for the prometheus exporter logs
+  copy:
+    src: files/redis_exporter_logrotate.conf
+    dest: /etc/logrotate.d/prom_exporters
+    mode: 0755
+
+- name: start redis exporter as a service
+  service:
+    name: redis_exporter
+    state: restarted
+  become_user: root
+
